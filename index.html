@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MiControl PRO v4.1</title>
+<link rel="manifest" href="manifest.json"><meta name="theme-color" content="#08142c">
+<style>
+:root{--bg:#071326;--card:#10213e;--txt:#eef6ff;--mut:#9db2d0;--pri:#2ee6a6;--sec:#4aa3ff;--bad:#ff5d73;--warn:#ffd166;--line:rgba(255,255,255,.12)}
+*{box-sizing:border-box}body{margin:0;font-family:system-ui,Segoe UI,Arial;background:radial-gradient(circle at 10% 0,rgba(74,163,255,.25),transparent 35%),radial-gradient(circle at 90% 0,rgba(46,230,166,.16),transparent 35%),var(--bg);color:var(--txt)}
+.app{max-width:1150px;margin:auto;padding:16px 12px 90px}.top{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:14px}.brand{display:flex;gap:12px;align-items:center}.logo{width:56px;height:56px;border-radius:18px;background:linear-gradient(135deg,var(--sec),var(--pri));display:grid;place-items:center;color:#061326;font-weight:1000;font-size:22px;box-shadow:0 12px 30px rgba(74,163,255,.25)}h1{margin:0;font-size:22px}.mut{color:var(--mut);font-size:12px}.pill{padding:9px 12px;border:1px solid var(--line);border-radius:999px;background:rgba(255,255,255,.06);font-size:13px}.grid{display:grid;gap:13px}.cards{grid-template-columns:repeat(4,1fr)}.two{grid-template-columns:1fr 1fr}.card{background:linear-gradient(180deg,rgba(255,255,255,.075),rgba(255,255,255,.035));border:1px solid var(--line);border-radius:22px;padding:15px;box-shadow:0 18px 55px rgba(0,0,0,.32)}.card h3{margin:0 0 8px;color:var(--mut);font-size:12px;text-transform:uppercase;letter-spacing:.5px}.amount{font-size:26px;font-weight:1000}.pos{color:var(--pri)}.neg{color:var(--bad)}.warn{color:var(--warn)}
+button{border:0;border-radius:14px;padding:11px 13px;font-weight:900;background:linear-gradient(135deg,var(--sec),var(--pri));color:#061326;cursor:pointer}button.sec{background:rgba(255,255,255,.08);border:1px solid var(--line);color:var(--txt)}button.dan{background:rgba(255,93,115,.14);border:1px solid rgba(255,93,115,.35);color:#ffd8de}.row{display:flex;gap:9px;flex-wrap:wrap}
+input,select{width:100%;background:rgba(255,255,255,.07);border:1px solid var(--line);border-radius:14px;color:var(--txt);padding:11px}label{display:block;margin:0 0 5px;color:var(--mut);font-size:11px;font-weight:800;text-transform:uppercase}.form{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}.full{grid-column:1/-1}
+.section{display:none}.section.active{display:block}.nav{position:fixed;left:50%;bottom:10px;transform:translateX(-50%);width:min(900px,calc(100% - 16px));display:grid;grid-template-columns:repeat(7,1fr);gap:7px;background:rgba(8,20,44,.92);backdrop-filter:blur(16px);border:1px solid var(--line);border-radius:23px;padding:7px}.nav button{background:transparent;color:var(--mut);font-size:11px;padding:9px 4px}.nav button.active{background:rgba(74,163,255,.18);color:var(--txt)}
+.list{display:grid;gap:9px;max-height:520px;overflow:auto}.item{display:flex;align-items:center;justify-content:space-between;gap:9px;padding:11px;border:1px solid var(--line);border-radius:16px;background:rgba(255,255,255,.055)}.tag{font-size:12px;color:var(--mut);margin-top:3px}.bar{height:10px;border-radius:999px;background:rgba(255,255,255,.09);overflow:hidden}.bar i{height:100%;display:block;background:linear-gradient(90deg,var(--sec),var(--pri))}.chart{height:160px;display:flex;gap:8px;align-items:end;border-bottom:1px solid var(--line);padding-top:8px}.chart div{flex:1;background:linear-gradient(180deg,var(--sec),var(--pri));border-radius:10px 10px 0 0;position:relative}.chart span{position:absolute;bottom:-28px;left:50%;transform:translateX(-50%) rotate(-30deg);font-size:10px;color:var(--mut);white-space:nowrap}.table{width:100%;border-collapse:collapse}.table td,.table th{padding:9px;border-bottom:1px solid var(--line);text-align:left}.empty{text-align:center;color:var(--mut);padding:25px}
+@media(max-width:850px){.cards,.two,.form{grid-template-columns:1fr}.amount{font-size:23px}.nav{grid-template-columns:repeat(4,1fr)}}
+@media print{body{background:white;color:#111}.nav,.top,.no-print{display:none}.card{box-shadow:none;background:white;color:#111;border:1px solid #ccc}.section{display:block}.mut,.tag,.card h3{color:#555}}
+
+body.locked .app, body.locked .nav{display:none!important}
+#splashScreen,#loginScreen{position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;background:radial-gradient(circle at 20% 0%,rgba(74,163,255,.28),transparent 36%),radial-gradient(circle at 80% 0%,rgba(46,230,166,.18),transparent 36%),#071326;padding:22px;color:#eef6ff}
+#splashScreen.hide,#loginScreen.hide{display:none}
+.splash-card,.login-card{width:min(430px,100%);border-radius:32px;padding:28px;text-align:center;background:linear-gradient(180deg,rgba(255,255,255,.09),rgba(255,255,255,.04));border:1px solid rgba(255,255,255,.14);box-shadow:0 25px 80px rgba(0,0,0,.45)}
+.big-logo{width:116px;height:116px;border-radius:34px;margin:0 auto 18px;background:linear-gradient(135deg,#4aa3ff,#2ee6a6);display:grid;place-items:center;color:#061326;font-weight:1000;font-size:44px;box-shadow:0 18px 45px rgba(46,230,166,.22)}
+.splash-title{font-size:34px;font-weight:1000;line-height:1.05;margin-bottom:8px}.splash-sub{color:#9db2d0;font-size:15px}
+.pin-input{text-align:center;font-size:26px;letter-spacing:10px;font-weight:900;margin:18px 0}
+.login-actions{display:grid;gap:10px;margin-top:12px}.login-actions button{width:100%;font-size:16px}
+.nav{grid-template-columns:repeat(4,1fr)!important;row-gap:6px!important;bottom:calc(10px + env(safe-area-inset-bottom))!important;padding:8px!important}
+.nav button{min-height:42px!important;font-size:11px!important}.app{padding-bottom:150px!important}
+@media(min-width:800px){.nav{grid-template-columns:repeat(8,1fr)!important;max-width:960px}.app{padding-bottom:105px!important}}
+
+
+/* ===== MiControl PRO v4.2 logo profesional + categorías corregidas ===== */
+.logo,.big-logo{
+  background-image:url('logo-micontrol.png') !important;
+  background-size:cover !important;
+  background-position:center !important;
+  color:transparent !important;
+  overflow:hidden !important;
+}
+.logo{border-radius:18px !important;}
+.big-logo{border-radius:34px !important;}
+.nav{grid-template-columns:repeat(4,1fr)!important;row-gap:6px!important;bottom:calc(10px + env(safe-area-inset-bottom))!important;padding:8px!important}
+.nav button{min-height:42px!important;font-size:11px!important}
+.app{padding-bottom:150px!important}
+@media(min-width:800px){.nav{grid-template-columns:repeat(8,1fr)!important;max-width:960px}.app{padding-bottom:105px!important}}
+.category-chip{display:flex;align-items:center;justify-content:space-between;gap:8px}
+
+</style>
+</head>
+<body class="locked">
+<div id="splashScreen"><div class="splash-card"><div class="big-logo">MC</div><div class="splash-title">MiControl<br>PRO</div><div class="splash-sub">Controla tus gastos, cuentas, metas y deudas.</div><div class="bar" style="margin-top:22px"><i style="width:100%"></i></div></div></div>
+<div id="loginScreen" class="hide"><div class="login-card"><div class="big-logo">MC</div><div class="splash-title" style="font-size:30px">Bienvenido</div><div class="splash-sub" id="pinText">Ingresa tu PIN para entrar</div><input id="pinAccess" class="pin-input" type="password" inputmode="numeric" maxlength="6" placeholder="••••"><div class="login-actions"><button id="loginBtn" onclick="unlockApp()">Entrar</button></div><div class="mut" style="margin-top:12px">Acceso protegido. El PIN se guarda solo en este dispositivo.</div></div></div>
+<div class="app">
+<header class="top"><div class="brand"><div class="logo">MC</div><div><h1>MiControl PRO</h1><div class="mut">v4.3 · editar movimientos</div></div></div><div class="pill">Tasa: <b id="topRate">0</b> Bs/USD</div></header>
+
+<section id="inicio" class="section active">
+<div class="grid cards">
+<div class="card"><h3>Disponible USD</h3><div class="amount" id="kUsd">$0.00</div></div>
+<div class="card"><h3>Disponible Bs</h3><div class="amount" id="kBs">Bs 0.00</div></div>
+<div class="card"><h3>Patrimonio neto</h3><div class="amount" id="kNet">$0.00</div><div class="mut" id="debtMini"></div></div>
+<div class="card"><h3>Gasto del mes</h3><div class="amount neg" id="kSpent">$0.00</div><div class="mut" id="topCat"></div></div>
+</div>
+<div class="grid two" style="margin-top:13px">
+<div class="card"><h3>Acciones rápidas</h3><div class="row"><button onclick="quickMove('ingreso')">+ Ingreso</button><button class="sec" onclick="quickMove('gasto')">− Gasto</button><button class="sec" onclick="tab('deudas')">Deudas</button><button class="sec" onclick="tab('reportes')">Cierre mensual</button></div></div>
+<div class="card"><h3>Salud financiera</h3><div class="amount" id="health">0/100</div><div class="bar"><i id="healthBar" style="width:0%"></i></div><div class="mut" id="healthMsg"></div></div>
+</div>
+<div class="grid two" style="margin-top:13px"><div class="card"><h3>Gastos por categoría</h3><div id="chart" class="chart"></div></div><div class="card"><h3>Alertas inteligentes</h3><div id="alerts" class="list"></div></div></div>
+</section>
+
+<section id="cuentas" class="section"><div class="grid two"><div class="card"><h3>Crear cuenta</h3><div class="form">
+<div><label>Nombre</label><input id="accName" placeholder="Banco de Venezuela"></div><div><label>Tipo</label><select id="accType"><option>Efectivo</option><option>Banco</option><option>Pago móvil</option><option>Tarjeta</option><option>Otro</option></select></div>
+<div><label>Moneda</label><select id="accCur"><option value="USD">USD</option><option value="BS">Bs</option></select></div><div><label>Saldo inicial</label><input id="accBal" type="number" step="0.01"></div><div class="full"><button onclick="addAccount()">Crear cuenta</button></div>
+</div></div><div class="card"><h3>Mis cuentas</h3><div id="accounts" class="list"></div></div></div></section>
+
+<section id="movimientos" class="section"><div class="grid two"><div class="card"><h3>Registrar movimiento</h3><div class="form">
+<div><label>Tipo</label><select id="mvType"><option value="ingreso">Ingreso</option><option value="gasto">Gasto</option></select></div><div><label>Cuenta</label><select id="mvAcc"></select></div>
+<div><label>Monto</label><input id="mvAmt" type="number" step="0.01"></div><div><label>Categoría</label><select id="mvCat"></select></div>
+<div><label>Fecha</label><input id="mvDate" type="date"></div><div><label>Tasa</label><input id="mvRate" type="number" step="0.01"></div>
+<div class="full"><label>Nota</label><input id="mvNote"></div><div class="full"><button onclick="addMovement()">Guardar</button></div></div></div>
+<div class="card"><h3>Historial</h3><div id="movs" class="list"></div></div></div></section>
+
+<section id="transferencias" class="section"><div class="grid two"><div class="card"><h3>Transferir</h3><div class="form">
+<div><label>Desde</label><select id="trFrom"></select></div><div><label>Hacia</label><select id="trTo"></select></div><div><label>Monto origen</label><input id="trAmt" type="number" step="0.01"></div><div><label>Tasa</label><input id="trRate" type="number" step="0.01"></div><div class="full"><label>Nota</label><input id="trNote"></div><div class="full"><button onclick="addTransfer()">Guardar transferencia</button></div></div></div><div class="card"><h3>Transferencias</h3><div id="trs" class="list"></div></div></div></section>
+
+<section id="deudas" class="section"><div class="grid two"><div class="card"><h3>Registrar deuda / préstamo</h3><div class="form">
+<div><label>Tipo</label><select id="debtType"><option value="me_deben">Me deben</option><option value="yo_debo">Yo debo</option></select></div><div><label>Persona</label><input id="debtPerson"></div>
+<div><label>Monto</label><input id="debtAmt" type="number" step="0.01"></div><div><label>Moneda</label><select id="debtCur"><option value="USD">USD</option><option value="BS">Bs</option></select></div>
+<div><label>Fecha</label><input id="debtDate" type="date"></div><div><label>Vence</label><input id="debtDue" type="date"></div><div class="full"><label>Nota</label><input id="debtNote"></div><div class="full"><button onclick="addDebt()">Guardar</button></div>
+</div></div><div class="card"><h3>Resumen</h3><div class="grid two"><div class="card"><h3>Me deben</h3><div class="amount pos" id="owed">$0.00</div></div><div class="card"><h3>Yo debo</h3><div class="amount neg" id="owe">$0.00</div></div></div><br><div id="debts" class="list"></div></div></div></section>
+
+<section id="metas" class="section"><div class="grid two"><div class="card"><h3>Nueva meta</h3><div class="form">
+<div><label>Nombre</label><input id="gName"></div><div><label>Objetivo USD</label><input id="gTarget" type="number" step="0.01"></div><div><label>Ahorrado USD</label><input id="gSaved" type="number" step="0.01"></div><div><label>Fecha límite</label><input id="gEnd" type="date"></div><div class="full"><button onclick="addGoal()">Crear meta</button></div></div></div><div class="card"><h3>Metas</h3><div id="goals" class="list"></div></div></div></section>
+
+
+<section id="categorias" class="section"><div class="grid two">
+<div class="card"><h3>Crear categoría</h3><div class="form">
+<div class="full"><label>Nueva categoría</label><input id="newCat" placeholder="Ej: Medicina, comida, transporte"></div>
+<div class="full"><button type="button" onclick="addCategory()">Agregar categoría</button></div>
+</div></div>
+<div class="card"><h3>Categorías disponibles</h3><div id="cats" class="list"></div></div>
+</div></section>
+
+<section id="reportes" class="section"><div class="grid two"><div class="card"><h3>Cierre mensual</h3><div class="form no-print"><div><label>Mes</label><input id="repMonth" type="month" onchange="renderReport()"></div><div><label>PDF</label><button onclick="print()">Exportar / Imprimir</button></div></div><hr><div id="report"></div></div><div class="card"><h3>Recomendaciones</h3><div id="tips" class="list"></div></div></div></section>
+
+<section id="ajustes" class="section"><div class="grid two"><div class="card"><h3>Configuración</h3><div class="form"><div><label>Tasa BCV</label><input id="setRate" type="number" step="0.01"></div><div><label>PIN</label><button type="button" class="sec" onclick="changePinFromSettings()">Cambiar PIN</button></div><div class="full"><button onclick="saveSettings()">Guardar</button></div></div></div><div class="card"><h3>Respaldo</h3><div class="row"><button onclick="backup()">Exportar respaldo</button><button class="sec" onclick="impFile.click()">Importar</button><button class="dan" onclick="resetAll()">Borrar datos</button></div><input id="impFile" type="file" accept="application/json" style="display:none" onchange="importBackup(event)"><div class="mut">No subas tus respaldos personales a GitHub.</div></div></div></section>
+</div>
+
+<nav class="nav"><button class="active" onclick="tab('inicio',this)">Inicio</button><button onclick="tab('cuentas',this)">Cuentas</button><button onclick="tab('movimientos',this)">Mov.</button><button onclick="tab('transferencias',this)">Transf.</button><button onclick="tab('deudas',this)">Deudas</button><button onclick="tab('metas',this)">Metas</button><button onclick="tab('categorias',this)">Categorías</button><button onclick="tab('reportes',this)">Reportes</button></nav>
+
+<script>
+const KEY="micontrol_pro_data_v4_integrado", LEGACY=["micontrol_pro_data_v4","micontrol_pro_data_v2_6","micontrol_pro_data","micontrol_data"], VERSION="4.1";let data=load();
+function id(){return Date.now().toString(36)+Math.random().toString(36).slice(2,6)}function today(){return new Date().toISOString().slice(0,10)}function mon(){return new Date().toISOString().slice(0,7)}
+function m(n,c="USD"){n=Number(n||0);return c==="BS"?"Bs "+n.toLocaleString("es-VE",{minimumFractionDigits:2,maximumFractionDigits:2}):"$"+n.toLocaleString("en-US",{minimumFractionDigits:2,maximumFractionDigits:2})}
+function usd(a,c,r){r=Number(r||data.settings.rate||0);return c==="USD"?Number(a||0):(r?Number(a||0)/r:0)}
+function load(){let raw=localStorage.getItem(KEY);if(!raw){for(const k of LEGACY){if(localStorage.getItem(k)){raw=localStorage.getItem(k);break}}}let d=raw?JSON.parse(raw):{};d.version=VERSION;d.settings=d.settings||{rate:0,pin:""};d.categories=d.categories||["Comida","Ropa","Compras innecesarias","Transporte","Servicios","Salud","Casa","Educación","Deudas","Otros"];d.accounts=d.accounts||[];d.movements=d.movements||[];d.transfers=d.transfers||[];d.goals=d.goals||[];d.debts=d.debts||[];if(!d.accounts.length)d.accounts=[{id:id(),name:"Efectivo USD",type:"Efectivo",currency:"USD",initial:0,balance:0},{id:id(),name:"Efectivo Bs",type:"Efectivo",currency:"BS",initial:0,balance:0}];save(d);return d}
+function save(d=data){localStorage.setItem(KEY,JSON.stringify(d))}
+function tab(x,b){document.querySelectorAll(".section").forEach(s=>s.classList.remove("active"));document.getElementById(x).classList.add("active");document.querySelectorAll(".nav button").forEach(n=>n.classList.remove("active"));if(b)b.classList.add("active");if(x==="reportes")renderReport();render()}
+function opts(){let o=data.accounts.map(a=>`<option value="${a.id}">${a.name} · ${a.currency} · ${m(a.balance,a.currency)}</option>`).join("");mvAcc.innerHTML=trFrom.innerHTML=trTo.innerHTML=o;mvCat.innerHTML=(data.categories||[]).map(c=>`<option value="${c}">${c}</option>`).join("")}
+function accNameById(x){return data.accounts.find(a=>a.id===x)?.name||"—"}
+function addAccount(){if(!accName.value.trim())return alert("Coloca nombre.");let bal=Number(accBal.value||0), aid=id();data.accounts.push({id:aid,name:accName.value.trim(),type:accType.value,currency:accCur.value,initial:bal,balance:bal});if(bal>0)data.movements.push({id:id(),type:"ingreso",accountId:aid,amount:bal,currency:accCur.value,category:"Saldo inicial",date:today(),rate:data.settings.rate,note:"Saldo inicial",before:0,after:bal,createdAt:new Date().toISOString()});accName.value="";accBal.value="";save();render()}
+function quickMove(t){tab("movimientos");mvType.value=t;mvDate.value=today();mvRate.value=data.settings.rate||""}
+function addMovement(){let a=data.accounts.find(x=>x.id===mvAcc.value),amt=Number(mvAmt.value||0);if(!a||amt<=0)return alert("Completa cuenta y monto.");let before=Number(a.balance||0);if(mvType.value==="gasto"&&before<amt&&!confirm("Quedará negativo. ¿Continuar?"))return;a.balance=mvType.value==="ingreso"?before+amt:before-amt;data.movements.push({id:id(),type:mvType.value,accountId:a.id,amount:amt,currency:a.currency,category:mvCat.value,date:mvDate.value||today(),rate:Number(mvRate.value||data.settings.rate||0),note:mvNote.value,before,after:a.balance,createdAt:new Date().toISOString()});mvAmt.value=mvNote.value="";save();render()}
+function addTransfer(){let f=data.accounts.find(a=>a.id===trFrom.value),t=data.accounts.find(a=>a.id===trTo.value),amt=Number(trAmt.value||0),r=Number(trRate.value||data.settings.rate||0);if(!f||!t||f.id===t.id||amt<=0)return alert("Completa transferencia.");let rec=amt;if(f.currency!==t.currency){if(!r)return alert("Coloca tasa.");rec=f.currency==="USD"?amt*r:amt/r}let bf=f.balance;f.balance-=amt;t.balance+=rec;data.transfers.push({id:id(),fromId:f.id,toId:t.id,amount:amt,received:rec,fromCurrency:f.currency,toCurrency:t.currency,rate:r,date:today(),note:trNote.value,createdAt:new Date().toISOString()});data.movements.push({id:id(),type:"transferencia",accountId:f.id,amount:amt,currency:f.currency,category:"Transferencia",date:today(),rate:r,note:trNote.value,before:bf,after:f.balance,createdAt:new Date().toISOString()});trAmt.value=trNote.value="";save();render()}
+function addDebt(){let p=debtPerson.value.trim(),amt=Number(debtAmt.value||0);if(!p||amt<=0)return alert("Completa persona y monto.");data.debts.push({id:id(),type:debtType.value,person:p,amount:amt,currency:debtCur.value,date:debtDate.value||today(),due:debtDue.value,note:debtNote.value,paid:false,createdAt:new Date().toISOString()});debtPerson.value=debtAmt.value=debtNote.value="";save();render()}
+function payDebt(x){let d=data.debts.find(a=>a.id===x);d.paid=!d.paid;save();render()}function delDebt(x){if(confirm("¿Eliminar?")){data.debts=data.debts.filter(d=>d.id!==x);save();render()}}
+function addGoal(){let name=gName.value.trim(),target=Number(gTarget.value||0);if(!name||target<=0)return alert("Completa meta.");data.goals.push({id:id(),name,target,saved:Number(gSaved.value||0),end:gEnd.value,createdAt:new Date().toISOString()});gName.value=gTarget.value=gSaved.value=gEnd.value="";save();render()}
+function addSave(x){let g=data.goals.find(a=>a.id===x),v=Number(prompt("Monto a agregar:")||0);if(v){g.saved=Number(g.saved||0)+v;save();render()}}function delGoal(x){if(confirm("¿Eliminar meta?")){data.goals=data.goals.filter(g=>g.id!==x);save();render()}}
+
+
+function addCategory(){
+  const input=document.getElementById("newCat");
+  if(!input){ alert("No se encontró el campo de categoría."); return; }
+  const c=(input.value||"").trim();
+  if(!c){ alert("Escribe el nombre de la categoría."); return; }
+  data.categories=data.categories||[];
+  const exists=data.categories.some(x=>String(x).toLowerCase()===c.toLowerCase());
+  if(exists){ alert("Esa categoría ya existe."); return; }
+  data.categories.push(c);
+  input.value="";
+  save();
+  render();
+  alert("Categoría agregada correctamente.");
+}
+function delCategory(cat){
+  data.categories=data.categories||[];
+  const used=(data.movements||[]).some(m=>m.category===cat);
+  if(used){
+    alert("No se puede borrar porque ya tiene movimientos registrados.");
+    return;
+  }
+  if(confirm("¿Eliminar la categoría "+cat+"?")){
+    data.categories=data.categories.filter(x=>x!==cat);
+    save();
+    render();
+  }
+}
+function saveSettings(){data.settings.rate=Number(setRate.value||0);save();render();alert("Guardado")}
+function totals(){let r=Number(data.settings.rate||0),mo=mon(),usdT=data.accounts.filter(a=>a.currency==="USD").reduce((s,a)=>s+Number(a.balance||0),0),bs=data.accounts.filter(a=>a.currency==="BS").reduce((s,a)=>s+Number(a.balance||0),0),me=data.debts.filter(d=>!d.paid&&d.type==="me_deben").reduce((s,d)=>s+usd(d.amount,d.currency,r),0),yo=data.debts.filter(d=>!d.paid&&d.type==="yo_debo").reduce((s,d)=>s+usd(d.amount,d.currency,r),0),inc=data.movements.filter(x=>x.type==="ingreso"&&(x.date||"").slice(0,7)===mo).reduce((s,x)=>s+usd(x.amount,x.currency,x.rate||r),0),sp=data.movements.filter(x=>x.type==="gasto"&&(x.date||"").slice(0,7)===mo).reduce((s,x)=>s+usd(x.amount,x.currency,x.rate||r),0);return{r,usdT,bs,me,yo,inc,sp,net:usdT+(r?bs/r:0)+me-yo}}
+
+function recalcAccountBalances(){
+  (data.accounts||[]).forEach(a=>{ a.balance=Number(a.initial||0); });
+  const ordered=[...(data.movements||[])].sort((a,b)=>(a.createdAt||a.date||"").localeCompare(b.createdAt||b.date||""));
+  ordered.forEach(mv=>{
+    if(mv.type==="transferencia") return;
+    const acc=(data.accounts||[]).find(a=>a.id===mv.accountId);
+    if(!acc) return;
+    mv.before=Number(acc.balance||0);
+    if(mv.type==="ingreso") acc.balance=Number(acc.balance||0)+Number(mv.amount||0);
+    if(mv.type==="gasto") acc.balance=Number(acc.balance||0)-Number(mv.amount||0);
+    mv.after=Number(acc.balance||0);
+  });
+}
+function deleteMovement(moveId){
+  const mv=(data.movements||[]).find(m=>m.id===moveId);
+  if(!mv) return;
+  if(mv.type==="transferencia"){ alert("Las transferencias se eliminan desde Transferencias."); return; }
+  if(!confirm("¿Eliminar este movimiento?")) return;
+  data.movements=data.movements.filter(m=>m.id!==moveId);
+  recalcAccountBalances(); save(); render();
+}
+function editMovement(moveId){
+  const mv=(data.movements||[]).find(m=>m.id===moveId);
+  if(!mv) return;
+  if(mv.type==="transferencia"){ alert("Las transferencias se editan con una transferencia de ajuste."); return; }
+  const type=(prompt("Tipo: ingreso o gasto", mv.type)||"").toLowerCase().trim();
+  if(!["ingreso","gasto"].includes(type)){ alert("Tipo inválido."); return; }
+  const amount=Number(prompt("Monto", mv.amount));
+  if(!amount || amount<=0){ alert("Monto inválido."); return; }
+  const category=(prompt("Categoría", mv.category||"Otros")||"Otros").trim();
+  const date=prompt("Fecha YYYY-MM-DD", mv.date||today())||today();
+  const rate=Number(prompt("Tasa usada", mv.rate||data.settings.rate||"")||0);
+  const note=prompt("Nota", mv.note||"")||"";
+  mv.type=type; mv.amount=amount; mv.category=category; mv.date=date; mv.rate=rate; mv.note=note; mv.editedAt=new Date().toISOString();
+  data.categories=data.categories||[];
+  if(!data.categories.includes(category)) data.categories.push(category);
+  recalcAccountBalances(); save(); render();
+}
+function duplicateMovement(moveId){
+  const mv=(data.movements||[]).find(m=>m.id===moveId);
+  if(!mv || mv.type==="transferencia") return;
+  const acc=(data.accounts||[]).find(a=>a.id===mv.accountId);
+  if(!acc) return;
+  if(!confirm("¿Duplicar este movimiento con fecha de hoy?")) return;
+  const before=Number(acc.balance||0);
+  if(mv.type==="ingreso") acc.balance=before+Number(mv.amount||0);
+  if(mv.type==="gasto") acc.balance=before-Number(mv.amount||0);
+  data.movements.push({...mv,id:id(),date:today(),before,after:acc.balance,createdAt:new Date().toISOString(),note:(mv.note||"")+" (duplicado)"});
+  save(); render();
+}
+function toggleFavorite(moveId){
+  const mv=(data.movements||[]).find(m=>m.id===moveId);
+  if(!mv) return;
+  mv.favorite=!mv.favorite; save(); render();
+}
+function deleteTransfer(transferId){
+  const tr=(data.transfers||[]).find(t=>t.id===transferId);
+  if(!tr) return;
+  if(!confirm("¿Eliminar esta transferencia y revertir saldos?")) return;
+  const from=(data.accounts||[]).find(a=>a.id===tr.fromId);
+  const to=(data.accounts||[]).find(a=>a.id===tr.toId);
+  if(from) from.balance=Number(from.balance||0)+Number(tr.amount||0);
+  if(to) to.balance=Number(to.balance||0)-Number(tr.received||0);
+  data.transfers=data.transfers.filter(t=>t.id!==transferId);
+  data.movements=data.movements.filter(m=>!(m.type==="transferencia" && m.accountId===tr.fromId && m.toAccountId===tr.toId && m.createdAt===tr.createdAt));
+  save(); render();
+}
+
+function render(){opts();let t=totals();topRate.textContent=t.r||"Sin tasa";setRate.value=t.r||"";mvRate.value=mvRate.value||t.r||"";trRate.value=trRate.value||"";kUsd.textContent=m(t.usdT);kBs.textContent=m(t.bs,"BS");kNet.textContent=m(t.net);kSpent.textContent=m(t.sp);debtMini.textContent=`Me deben ${m(t.me)} · Yo debo ${m(t.yo)}`;let sc=Math.max(0,Math.min(100,Math.round(t.inc?((t.inc-t.sp)/t.inc)*100+50-(t.yo>t.me?10:0):50)));health.textContent=sc+"/100";healthBar.style.width=sc+"%";healthMsg.textContent=sc>80?"Excelente control.":sc>55?"Vas bien.":"Cuidado con gastos/deudas.";
+let cat={};data.movements.filter(x=>x.type==="gasto").forEach(x=>cat[x.category]=(cat[x.category]||0)+usd(x.amount,x.currency,x.rate||t.r));let top=Object.entries(cat).sort((a,b)=>b[1]-a[1])[0];topCat.textContent="Mayor gasto: "+(top?top[0]:"—");draw(cat);
+accounts.innerHTML=data.accounts.map(a=>`<div class="item"><div><b>${a.name}</b><div class="tag">${a.type} · ${a.currency}</div></div><b>${m(a.balance,a.currency)}</b></div>`).join("")||'<div class="empty">Sin cuentas</div>';
+movs.innerHTML=[...data.movements].sort((a,b)=>(b.createdAt||"").localeCompare(a.createdAt||"")).map(x=>`<div class="item"><div><b class="${x.type==='gasto'?'neg':x.type==='ingreso'?'pos':'warn'}">${x.favorite?'⭐ ':''}${x.type==='gasto'?'−':x.type==='ingreso'?'+':'↔'} ${m(x.amount,x.currency)}</b><div class="tag">${x.category} · ${accNameById(x.accountId)} · ${x.date} · Tasa ${x.rate||'—'}</div><div class="tag">Saldo ${m(x.before,x.currency)} → ${m(x.after,x.currency)} ${x.note||''} ${x.editedAt?'· Editado':''}</div></div><div class="row">${x.type!=='transferencia'?`<button class="sec" onclick="editMovement('${x.id}')">Editar</button><button class="sec" onclick="duplicateMovement('${x.id}')">Duplicar</button><button class="sec" onclick="toggleFavorite('${x.id}')">${x.favorite?'Quitar ⭐':'⭐'}</button><button class="dan" onclick="deleteMovement('${x.id}')">Eliminar</button>`:''}</div></div>`).join("")||'<div class="empty">Sin movimientos</div>';
+trs.innerHTML=data.transfers.map(x=>`<div class="item"><div><b>${accNameById(x.fromId)} → ${accNameById(x.toId)}</b><div class="tag">${m(x.amount,x.fromCurrency)} → ${m(x.received,x.toCurrency)} · tasa ${x.rate||'—'} · ${x.date}</div></div><button class="dan" onclick="deleteTransfer('${x.id}')">Eliminar</button></div>`).join("")||'<div class="empty">Sin transferencias</div>';
+owed.textContent=m(t.me);owe.textContent=m(t.yo);debts.innerHTML=data.debts.sort((a,b)=>(a.paid-b.paid)||((a.due||"9999").localeCompare(b.due||"9999"))).map(d=>`<div class="item"><div><b class="${d.type==='yo_debo'?'neg':'pos'}">${d.type==='yo_debo'?'Yo debo':'Me deben'} ${m(d.amount,d.currency)}</b><div class="tag">${d.person} · vence ${d.due||'—'} · ${d.paid?'Pagado':'Pendiente'} ${d.note||''}</div></div><div class="row"><button class="sec" onclick="payDebt('${d.id}')">${d.paid?'Reabrir':'Pagado'}</button><button class="dan" onclick="delDebt('${d.id}')">Borrar</button></div></div>`).join("")||'<div class="empty">Sin deudas</div>';
+goals.innerHTML=data.goals.map(g=>{let pct=Math.min(100,Math.round((Number(g.saved||0)/(Number(g.target||1)))*100)),days=g.end?Math.ceil((new Date(g.end)-new Date())/86400000):0,f=Math.max(0,Number(g.target||0)-Number(g.saved||0));return`<div class="item"><div style="width:100%"><b>${g.name}</b><div class="tag">${m(g.saved)} de ${m(g.target)} · ${pct}% · ${g.end?days+' días':'sin fecha'}</div><div class="bar"><i style="width:${pct}%"></i></div><div class="tag">Falta ${m(f)} ${days>0?'· diario '+m(f/days):''}</div><div class="row"><button class="sec" onclick="addSave('${g.id}')">Agregar</button><button class="dan" onclick="delGoal('${g.id}')">Borrar</button></div></div></div>`}).join("")||'<div class="empty">Sin metas</div>';
+if(document.getElementById("cats")){
+  if(document.getElementById("cats")){
+  cats.innerHTML=(data.categories||[]).map(c=>`<div class="item category-chip"><div><b>${c}</b><div class="tag">Disponible para ingresos y gastos</div></div><button class="dan" onclick="delCategory('${String(c).replaceAll("'","\'")}')">Borrar</button></div>`).join("")||'<div class="empty">Sin categorías</div>';
+}
+}
+alerts.innerHTML=alertsBuild().map(a=>`<div class="item">${a}</div>`).join("");if(document.getElementById("reportes").classList.contains("active"))renderReport()}
+function draw(cat){let e=Object.entries(cat).sort((a,b)=>b[1]-a[1]).slice(0,7);if(!e.length){chart.innerHTML='<div class="empty">Sin gastos</div>';return}let max=Math.max(...e.map(x=>x[1]));chart.innerHTML=e.map(x=>`<div style="height:${Math.max(7,x[1]/max*100)}%"><span>${x[0]}</span></div>`).join("")}
+function alertsBuild(){let a=[],t=totals();data.debts.filter(d=>!d.paid&&d.due).forEach(d=>{let days=Math.ceil((new Date(d.due)-new Date())/86400000);if(days<=3)a.push(`⚠️ ${d.type==='yo_debo'?'Debes pagar':'Deben pagarte'} ${m(d.amount,d.currency)} de ${d.person} ${days<0?'vencido':'en '+days+' días'}.`)});data.goals.forEach(g=>{if(g.end){let days=Math.ceil((new Date(g.end)-new Date())/86400000),f=Math.max(0,Number(g.target||0)-Number(g.saved||0));if(days>0&&f>0)a.push(`🎯 Para "${g.name}" ahorra ${m(f/days)} diario.`)}});if(t.inc>0&&t.sp/t.inc>.75)a.push("🔥 Tus gastos superan 75% de tus ingresos.");return a.length?a:["✅ Todo tranquilo."]} 
+function renderReport(){let mo=repMonth.value||mon();repMonth.value=mo;let r=data.settings.rate||0,arr=data.movements.filter(x=>(x.date||"").slice(0,7)===mo),inc=arr.filter(x=>x.type==="ingreso").reduce((s,x)=>s+usd(x.amount,x.currency,x.rate||r),0),sp=arr.filter(x=>x.type==="gasto").reduce((s,x)=>s+usd(x.amount,x.currency,x.rate||r),0),cat={};arr.filter(x=>x.type==="gasto").forEach(x=>cat[x.category]=(cat[x.category]||0)+usd(x.amount,x.currency,x.rate||r));let top=Object.entries(cat).sort((a,b)=>b[1]-a[1])[0],sav=inc-sp,pct=inc?Math.round(sav/inc*100):0;report.innerHTML=`<h2>Cierre ${mo}</h2><table class="table"><tr><th>Concepto</th><th>Total</th></tr><tr><td>Ingresos</td><td class="pos">${m(inc)}</td></tr><tr><td>Gastos</td><td class="neg">${m(sp)}</td></tr><tr><td>Ahorro</td><td class="${sav>=0?'pos':'neg'}">${m(sav)}</td></tr><tr><td>% ahorro</td><td>${pct}%</td></tr><tr><td>Mayor gasto</td><td>${top?top[0]+' · '+m(top[1]):'—'}</td></tr></table>`;tips.innerHTML=[inc?`Tu ahorro fue ${pct}%.`:"Registra ingresos.",top?`Revisa gastos en ${top[0]}.`:"Sin gastos fuertes.","Puedes imprimir este cierre como PDF."].map(x=>`<div class="item">${x}</div>`).join("")}
+function backup(){let b=new Blob([JSON.stringify(data,null,2)],{type:"application/json"}),a=document.createElement("a");a.href=URL.createObjectURL(b);a.download="micontrol_respaldo_v4_1_"+today()+".json";a.click()}
+function importBackup(e){let f=e.target.files[0];if(!f)return;let r=new FileReader();r.onload=()=>{try{data=JSON.parse(r.result);save();render();alert("Importado")}catch(e){alert("Archivo inválido")}};r.readAsText(f)}
+function resetAll(){if(confirm("¿Borrar datos de este dispositivo?")){localStorage.removeItem(KEY);data=load();render()}}
+document.addEventListener("DOMContentLoaded",()=>{mvDate.value=debtDate.value=today();repMonth.value=mon();render()})
+
+function startSecurity(){
+  document.body.classList.add("locked");
+  const splash=document.getElementById("splashScreen"), login=document.getElementById("loginScreen");
+  setTimeout(()=>{
+    splash.classList.add("hide");
+    login.classList.remove("hide");
+    const saved=(data.settings&&data.settings.pin)||"";
+    document.getElementById("pinText").textContent = saved ? "Ingresa tu PIN para entrar" : "Crea tu PIN de seguridad";
+    document.getElementById("loginBtn").textContent = saved ? "Entrar" : "Crear PIN";
+    try{document.getElementById("pinAccess").focus()}catch(e){}
+  },1300);
+}
+function unlockApp(){
+  const pin=(document.getElementById("pinAccess").value||"").trim();
+  data.settings=data.settings||{};
+  const saved=data.settings.pin||"";
+  if(!/^[0-9]{4,6}$/.test(pin)){
+    alert("El PIN debe tener de 4 a 6 números.");
+    return;
+  }
+  if(!saved){
+    data.settings.pin=pin;
+    save();
+    alert("PIN creado correctamente.");
+  }else if(pin!==saved){
+    alert("PIN incorrecto.");
+    return;
+  }
+  document.getElementById("loginScreen").classList.add("hide");
+  document.body.classList.remove("locked");
+  render();
+}
+function changePinFromSettings(){
+  const current=(data.settings&&data.settings.pin)||"";
+  if(current){
+    const oldPin=prompt("Ingresa tu PIN actual:");
+    if(oldPin!==current){ alert("PIN actual incorrecto."); return; }
+  }
+  const p=prompt("Nuevo PIN de 4 a 6 números:");
+  if(!p) return;
+  if(!/^[0-9]{4,6}$/.test(p)){ alert("El PIN debe tener de 4 a 6 números."); return; }
+  data.settings=data.settings||{};
+  data.settings.pin=p;
+  save();
+  alert("PIN actualizado correctamente.");
+}
+setTimeout(startSecurity,50);
+
+</script></body></html>
